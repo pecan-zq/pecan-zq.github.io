@@ -1,0 +1,37 @@
+Playing field
+- Wall following challenges
+- GPS challenges
+- Cospace type challenge
+- Underwater
+- Flying drone
+
+Features
+- Documentation panel?
+- Implement Pybricks support (...run, not just generate code)
+- More components
+  - claw
+  - camera (array of rgb/hsv for image recognition. Is skulpt fast enough? Without numpy?)
+  - LED (use ev3dev api or new?)
+  - IR array (single camera with orthographic view?)
+  - Ball (point constraint)
+- Prevent jumping over wall when backing up. (Increasing wall friction doesn't work...)
+- Set duty_cycle_sp. Useful for aligning to wall.
+- Buttons
+- Load zip file
+- Touch sensor extendable touch surface
+- Switch to monaco?
+- Add support for Lego Python?
+- Rewrite python imports for trivial files in js
+- Blockly slider field https://google.github.io/blockly-samples/plugins/field-slider/test/
+- Review UI events with new Blockly version https://groups.google.com/g/blockly/c/4StIgJJXPwY/m/VSHqnqADAgAJ
+- Change multi-page approach to use multiple, independent workspaces instead
+- Sync to github!
+- Models in robot
+
+Coding (Sharing)
+- Remote coach view of student's work
+- Spectator mode. Run code on one computer, but rendered and view on multiple.
+- Host an arena match and allow others to submit code/robots
+
+Bugs
+- Loading a map file will set hidden options that cannot be cleared through GUI.

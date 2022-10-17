@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="css/main.css?v=e4913234">
+
+  <script src="jquery/jquery-3.5.1.slim.min.js"></script>
+
+  <script src="skulpt/0.11.0/skulpt.min.js"></script>
+  <script src="skulpt/0.11.0/skulpt-stdlib.js"></script>
+
+  <script src="jszip/3.5.0/jszip.min.js"></script>
+
+  <title>GearsBot Arena iFrame</title>
+</head>
+
+<body>
+  <main id="arenaFrame" class="disabled">
+    <div class="row header">
+      <input type="checkbox" id="enable">
+      <span id="player"></span>
+    </div>
+    <div class="row">
+      <!-- <label for="zip">Upload your zip package:&nbsp;</label> -->
+      <div id="zipLabel">
+        Upload your zip package:<br>
+        <div class="fileSelector">
+          <input type="text" id="zipFileName" placeholder="Choose file" disabled>
+          <label for="zip">Browse...</label>
+          <input type="file" id="zip" accept="application/zip,.zip">
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/robotComponents.js?v=70339366"></script>
+  <script src="js/skulpt.js?v=1c418afb"></script>
+  <script>
+    function readGET(name) {
+      var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+      if (results==null){
+        return null;
+      } else {
+        return decodeURI(results[1]);
+      }
+    }
+
+    var parent = window.parent;
+    var player = parseInt(readGET('player'));
+    var pythonProgram = null;
+    var robot = parent.robots[player];
+
+    document.getElementById('player').innerText = 'Player ' + player;
+    document.getElementById('arenaFrame').classList.add('bot' + player);
+    document.getElementById('enable').onclick = function(){
+      if (document.getElementById('enable').checked) {
+        document.getElementById('arenaFrame').classList.remove('disabled');
+        robot.disabled = false;
+      } else {
+        document.getElementById('arenaFrame').classList.add('disabled');
+        robot.disabled = true;
+      }
+      parent.arenaPanel.resetSim();
+    };
+
+    var simPanel = new function() {
+      playerIndicator = '<span class="player' + player + '">Player ' + player + ' : </span>';
+
+      this.setRunIcon = function(type) {
+      };
+
+      this.consoleWrite = function(text) {
+        text = playerIndicator + parent.arenaPanel.stripHTML(text);
+        text = parent.arenaPanel.$consoleContent.html() + text;
+        parent.arenaPanel.$consoleContent.html(text);
+        parent.arenaPanel.scrollConsoleToBottom();
+      };
+
+      this.consoleWriteErrors = function(text) {
+        text = '<span class="error">' + parent.arenaPanel.stripHTML(text) + '</span>\n';
+        text = playerIndicator + text;
+        text = parent.arenaPanel.$consoleContent.html() + text;
+        parent.arenaPanel.$consoleContent.html(text);
+        parent.arenaPanel.scrollConsoleToBottom();
+      };
+    };
+
+    document.getElementById('arenaFrame').addEventListener('dragover', function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }, false);
+
+    document.getElementById('arenaFrame').addEventListener('drop', function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      uploadFile(e.dataTransfer.files[0]);
+    }, false);
+
+    document.getElementById('zip').addEventListener('click', function(e){
+      document.getElementById('zip').value = null;
+    });
+
+    document.getElementById('zip').addEventListener('change', function(e){
+      uploadFile(e.target.files[0]);
+    });
+
+    function uploadFile(file) {
+      document.getElementById('zipFileName').value = file.name;
+      JSZip.loadAsync(file)
+        .then(function(zip){
+          let metaFile = zip.file('meta.json');
+          if (metaFile) {
+            metaFile.async('string')
+              .then(function(content){
+                let meta = JSON.parse(content);
+                robot.name = meta.name;
+              });
+          }
+          zip.file('gearsPython.py').async('string')
+            .then(function(content){
+              pythonProgram = content;
+            });
+          zip.file('gearsRobot.json').async('string')
+            .then(function(content){
+              robot.options = JSON.parse(content);
+
+              function setColor(components) {
+                components.forEach(function(component) {
+                  if (component.type == 'PaintballLauncherActuator') {
+                    if (component.options == null) {
+                      component.options = {};
+                    }
+                    component.options.color = player;
+                  }
+                  if (typeof component.components != 'undefined') {
+                    setColor(component.components);
+                  }
+                });
+              }
+              setColor(robot.options.components);
+
+              parent.arenaPanel.resetSim();
+            });
+        })
+    };
+
+    function runPython() {
+      let enable = document.getElementById('enable').checked;
+      if (! enable) {
+        return;
+      }
+
+      if (pythonProgram) {
+        skulpt.runPython(pythonProgram);
+      }
+    };
+  </script>
+</body>
+</html>
