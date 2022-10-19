@@ -378,7 +378,6 @@ var robotTemplates = [
       '<ul>' +
         '<li>#robot-port# A : #robot-leftWheel#</li>' +
         '<li>#robot-port# B : #robot-rightWheel#</li>' +
-        '<li>#robot-port# C : #robot-electromagnet#</li>' +
       '</ul>' +
       '<h3>#robot-sensors#</h3>' +
       '<ul>' +
@@ -386,7 +385,6 @@ var robotTemplates = [
         '<li>#robot-port# 2 : #robot-color# (#robot-right#)</li>' +
         '<li>#robot-port# 3 : #robot-ultrasonic#</li>' +
         '<li>#robot-port# 4 : #robot-gyro#</li>' +
-        '<li>#robot-port# 5 : GPS</li>' +
       '</ul>',
     thumbnail: 'images/robots/doubleFollower.jpg',
 
@@ -437,17 +435,6 @@ var robotTemplates = [
       {
         type: 'GyroSensor',
         position: [0, 2.5, 2.5],
-        options: null
-      },
-      {
-        type: 'GPSSensor',
-        position: [0, 2.5, 5],
-        options: null
-      },
-      {
-        type: 'MagnetActuator',
-        position: [0, -1, 3],
-        rotation: [0, 0, 0],
         options: null
       }
     ]
