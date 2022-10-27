@@ -19,6 +19,26 @@ def map_port(port):
     else:
         return None
 
+def map_color(ev3_color):
+    if ev3_color == 'Black' :
+        return 'black'
+    elif ev3_color == 'Violet' :
+        return 'violet'
+    elif ev3_color == 'Blue' :
+        return 'blue'
+    elif ev3_color == 'Cyan' :
+        return 'cyan'
+    elif ev3_color == 'Green' :
+        return 'green'
+    elif ev3_color == 'Yellow' :
+        return 'yellow'
+    elif ev3_color == 'Red' :
+        return 'red'
+    elif ev3_color == 'White' :
+        return 'white'
+    else :
+        return 'none'
+
 def clip(n):
     n = n // 2
     if n < -100:
@@ -99,16 +119,46 @@ class MotorPair:
     def move(self, amount, unit='cm', steering=0, speed=None):
         amount = (2.54 * amount) if unit == "in" else amount
         speed = speed if speed is not None else self.default_speed
-        self.steering_drive.on_for_degrees(
-            steering=clip(steering), speed=clip(speed),
-            degrees=(amount * 360 / (math.pi * self.wheel_width)))
+        if unit == 'cm' or unit == 'in' :
+            self.steering_drive.on_for_degrees(
+                steering=clip(steering), speed=clip(speed),
+                degrees=(amount * 360 / (math.pi * self.wheel_width)))
+        elif unit == 'rotations' :
+            self.steering_drive.on_for_rotations(
+                steering=clip(steering), speed=clip(speed),
+                rotations=amount)
+        elif unit == 'degrees' :
+            self.steering_drive.on_for_degrees(
+                steering=clip(steering), speed=clip(speed),
+                degrees=amount)
+        elif unit == 'seconds' :
+            self.steering_drive.on_for_seconds(
+                steering=clip(steering), speed=clip(speed),
+                seconds=amount)
+        else :
+            print('error! unit is not supported')
     def move_tank(self, amount, unit='cm', left_speed=None, right_speed=None):
         amount = (2.54 * amount) if unit == "in" else amount
         left_speed = left_speed if left_speed is not None else self.default_speed
         right_speed = right_speed if right_speed is not None else self.default_speed
-        self.tank_drive.on_for_degrees(
-            left_speed=clip(left_speed), right_speed=clip(right_speed),
-            degrees=(amount * 360 / (math.pi * self.wheel_width)))
+        if unit == 'cm' or unit == 'in' :
+            self.tank_drive.on_for_degrees(
+                left_speed=clip(left_speed), right_speed=clip(right_speed),
+                degrees=(amount * 360 / (math.pi * self.wheel_width)))
+        elif unit == 'rotations' :
+            self.tank_drive.on_for_rotations(
+                left_speed=clip(left_speed), right_speed=clip(right_speed),
+                rotations=amount)
+        elif unit == 'degrees' :
+            self.tank_drive.on_for_degrees(
+                left_speed=clip(left_speed), right_speed=clip(right_speed),
+                degrees=amount)
+        elif unit == 'seconds' :
+            self.tank_drive.on_for_seconds(
+                left_speed=clip(left_speed), right_speed=clip(right_speed),
+                seconds=amount)
+        else :
+            print('error! unit is not supported')
     def stop(self):
         self.steering_drive.off(brake=self.brake)
 
@@ -118,7 +168,7 @@ class ColorSensor:
     def get_reflected_light(self):
         return self.color_sensor.reflected_light_intensity
     def get_color(self):
-        return self.color_sensor.color_name
+        return map_color(self.color_sensor.color_name)
     def get_ambient_light(self):
         return self.color_sensor.ambient_light_intensity
 
